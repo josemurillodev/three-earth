@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>E A R T H</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link href="https://fonts.googleapis.com/css?family=Montserrat:100" rel="stylesheet">
+		<style>
+			body {
+				background:#000;
+				color:#fff;
+				padding:0;
+				margin:0;
+				font-weight: bold;
+				overflow:hidden;
+			}
+
+			a {	color: #ffffff;	}
+
+			#info {
+				position: absolute;
+				bottom: 15px;
+				width: 100%;
+				color: #ffffff;
+				padding: 0;
+				font-size: 32px;
+				z-index: 1000;
+				letter-spacing: 30px;
+				font-weight: 100;
+				text-align: right;
+				font-family: "Montserrat", sans-serif;
+				opacity: 0.5;
+			}
+
+			#webglmessage {
+				background:rgb(200,100,0) !important;
+				color:#fff;
+			}
+
+			#vt { display:none }
+			#vt, #vt a { color:orange; }
+		</style>
+	</head>
+
+	<body>
+
+		<div id="info">
+			EARTH
+		</div>
+
+		<script src="three.min.js"></script>
+		<script src="GLTFLoader.js"></script>
+
+		<script src="WebGL.js"></script>
+
+		<script>
+
+			if ( WEBGL.isWebGLAvailable() === false ) {
+
+				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+
+			}
+			var container, stats, loader;
+
+			var camera, scene, renderer;
+			var cameraOrtho, sceneOrtho;
+
+			var mesh, clouds;
+
+			var textureLoader;
+
+			var spotLight;
+
+			var mouseX = 0;
+			var mouseY = 0;
+
+			var targetX = 0;
+			var targetY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			var cameraY = 0;
+			var quaternion;
+			var axisX;
+			var axisY;
+			var last = false;
+			var pressed = false;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				//
+				camera = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 1000;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x060708 );
+
+				cameraOrtho = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 1, 10000 );
+				cameraOrtho.position.z = 1000;
+
+				sceneOrtho = new THREE.Scene();
+
+
+				quaternion = new THREE.Quaternion;
+				axisY = new THREE.Vector3( 0, 1, 0 );
+				axisX = new THREE.Vector3( 1, 0, 0 );
+
+				// LIGHTS
+				spotLight = new THREE.SpotLight( 0xFFFFFF, 0.7, 0, Math.PI/2 );
+				console.log(spotLight);
+				spotLight.position.set( 0, 0, 1000 );
+				spotLight.position.multiplyScalar( 700 );
+				scene.add( spotLight );
+
+				spotLight.castShadow = true;
+
+				spotLight.shadow.mapSize.width = 2048;
+				spotLight.shadow.mapSize.height = 2048;
+
+				// spotLight.shadow.camera.near = 200;
+				// spotLight.shadow.camera.far = 1500;
+
+				// spotLight.shadow.camera.fov = 40;
+
+				// spotLight.shadow.bias = - 0.005;
+
+				// //cubemap
+				var format = '.jpg';
+
+				var path = "textures/cube/stars/face-";
+				var urls = [
+					path + 'r' + format, path + 'l' + format,
+					path + 't' + format, path + 'd' + format,
+					path + 'f' + format, path + 'b' + format
+				];
+
+				var reflectionCube = new THREE.CubeTextureLoader().load( urls );
+				reflectionCube.format = THREE.RGBFormat;
+				scene.background = reflectionCube;
+
+				//
+				textureLoader = new THREE.TextureLoader();
+
+				var bumpMap = textureLoader.load( "textures/earth/bump.jpg" );
+				var texture = textureLoader.load( "textures/earth/diffuse.jpg" );
+
+				var material = new THREE.MeshPhongMaterial( {
+					color: 0xffffff,
+					emissive: 0x010101,
+					shininess: 0,
+					map: texture,
+					bumpMap: bumpMap,
+					bumpScale: 10,
+				} );
+
+				// var geoSphere = new THREE.SphereGeometry( 2, 32, 32 );
+
+				loader = new THREE.GLTFLoader();
+				loader.load( "models/earth.glb", function ( gltf ) {
+					console.log(gltf);
+					createScene( gltf.scene.children[ 0 ].geometry, 120, material );
+				} );
+
+				var spriteMap = new THREE.TextureLoader().load( "textures/ec.png" );
+				var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+				var sprite = new THREE.Sprite( spriteMaterial );
+				var scl = Math.max(window.innerWidth, window.innerHeight);
+				sprite.scale.set( 770, 770, 1.0 );
+				sceneOrtho.add( sprite );
+
+
+				// scene.add( new THREE.AxesHelper(500) );
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.autoClear = false;
+				container.appendChild( renderer.domElement );
+
+				renderer.shadowMap.enabled = true;
+
+				//
+
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
+				// EVENTS
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function createScene( geometry, scale, material ) {
+				mesh = new THREE.Mesh( geometry, material );
+				mesh.rotation.y -= 20;
+				mesh.scale.set( scale, scale, scale );
+				mesh.castShadow = true;
+				mesh.receiveShadow = true;
+
+				scene.add( mesh );
+
+				var alphaMap = textureLoader.load( "textures/earth/clouds.jpg" );
+
+				var cloudMaterial = new THREE.MeshPhongMaterial({
+					specular: 0x000000,
+					emissive: 0x010101,
+					opacity: 0.4,
+					alphaMap: alphaMap,
+					bumpMap: alphaMap,
+					bumpScale: 1,
+    			transparent: true
+				});
+				clouds = new THREE.Mesh( geometry, cloudMaterial );
+				clouds.scale.set( scale + 1, scale + 1, scale + 1 );
+				scene.add( clouds );
+			}
+
+			//
+
+			function onWindowResize() {
+
+				var width = window.innerWidth;
+				var height = window.innerHeight;
+
+				camera.aspect = width / height;
+				camera.updateProjectionMatrix();
+
+				cameraOrtho.aspect = width / height;
+				cameraOrtho.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseDown(event) {
+				last = new THREE.Vector2( event.clientX, event.clientY );
+				pressed = true;
+			}
+
+			function onDocumentMouseUp() {
+				pressed = false;
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				mouseX = ( event.clientX - windowHalfX );
+				mouseY = ( event.clientY - windowHalfY );
+
+				  
+				if( last && pressed ){
+					
+					let rotY = event.clientX - last.x;
+					let rotX = event.clientY - last.y;
+					
+					camera.position.applyQuaternion( quaternion.setFromAxisAngle(
+						axisY, Math.PI * 2 * (rotY / innerWidth)
+					));
+					spotLight.position.applyQuaternion( quaternion.setFromAxisAngle(
+						axisY, Math.PI * 2 * (rotY / innerWidth)
+					));
+					
+					camera.lookAt( scene.position );
+					
+					last.set( event.clientX, event.clientY );
+					
+				}
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+
+			}
+
+			function render() {
+
+				targetX = mouseX * .01;
+				targetY = mouseY * .01;
+
+				if ( mesh ) {
+					mesh.rotation.y += 0.0011;
+					clouds.rotation.y += 0.0013;
+				}
+				cameraY += 0.0001;
+    
+
+				camera.lookAt( scene.position );
+				
+				renderer.clear();
+				renderer.render( scene, camera );
+				renderer.clearDepth();
+				renderer.render( sceneOrtho, cameraOrtho );
+
+			}
+
+		</script>
+
+	</body>
+</html>
