@@ -6,6 +6,21 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link href="https://fonts.googleapis.com/css?family=Montserrat:100" rel="stylesheet">
 		<style>
+			@keyframes drawlogo {
+        from{
+          stroke-dashoffset: 1190;
+        }
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      
+      @keyframes fadeinlogo {
+        0% { opacity:0; }
+        66% { opacity:0; }
+        100% { opacity:1; }
+      }
+
 			html, body, canvas {
 				background:#000;
 				color:#fff;
@@ -44,6 +59,44 @@
 				opacity: 0.5;
 			}
 
+			#logo {
+				position: absolute;
+				top: 5px;
+				right: 15px;
+				z-index: 1001;
+				opacity: 0.5;
+			}
+			#logo:hover {
+				opacity: 1;
+			}
+			.svg_path {
+				fill: none;
+				stroke: #ffffff;
+				stroke-width: 15;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+				stroke-miterlimit: 10;
+				stroke-dasharray: 1198;
+			}
+			#logo:hover .svg_path {
+				stroke-miterlimit: 10;
+				stroke-dasharray: 1198;
+				animation-duration: 1s;
+				animation-name: drawlogo;
+				animation-iteration-count: 1;
+				animation-direction: alternate;
+			}
+
+			.svg_dot {
+				fill: #d7b88f;
+			}
+			#logo:hover .svg_dot {
+				animation-duration: 1s;
+				animation-name: fadeinlogo;
+				animation-iteration-count: 1;
+				animation-direction: alternate;
+			}
+
 			#webglmessage {
 				background:rgb(200,100,0) !important;
 				color:#fff;
@@ -55,6 +108,16 @@
 	</head>
 
 	<body>
+
+	<a href="https://jlmr.herokuapp.com" target="_blank" rel="noreferrer nonoperner" id="logo">
+			<svg id="svg_loader" version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 624 804" height="60">
+				<g>
+					<path class="svg_path" id="img_1" d="M16.3 322.8s150.8-127.2 177.8-137.7 40.1-16.8 39 16.5c-1.4 42.1-75 278-141.3 351-65.8 72.4-102.1 47.7-38.7-43 65.8-94.2 238.5-195.5 238.5-195.5"></path>
+					<path class="svg_path" id="img_2" d="M188 500.2s149.8-275 186.1-306.1c33-28.3 37.5-6 30 45s-52.4 254.6-52.4 254.6 67.4-112.5 121.4-148.4c0 0-26.1 145 47.3 161 52.2 11.4 82.6-75.6 82.6-75.6"></path>
+					<circle class="svg_dot" id="img_3" cx="610.8" cy="520.8" r="11.2"></circle>
+				</g>
+			</svg>
+		</a>
 
 		<div id="info">
 			EARTH
