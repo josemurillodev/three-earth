@@ -134,7 +134,7 @@
 				// //cubemap
 				var format = '.jpg';
 
-				var path = "textures/cube/stars/face-";
+				var path = "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/cube/stars/face-";
 				var urls = [
 					path + 'r' + format, path + 'l' + format,
 					path + 't' + format, path + 'd' + format,
@@ -148,8 +148,8 @@
 				//
 				textureLoader = new THREE.TextureLoader();
 
-				var bumpMap = textureLoader.load( "textures/earth/bump.jpg" );
-				var texture = textureLoader.load( "textures/earth/diffuse.jpg" );
+				var bumpMap = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/earth/bump.jpg" );
+				var texture = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/earth/diffuse.jpg" );
 
 				var material = new THREE.MeshPhongMaterial( {
 					color: 0xffffff,
@@ -163,12 +163,12 @@
 				// var geoSphere = new THREE.SphereGeometry( 2, 32, 32 );
 
 				loader = new THREE.GLTFLoader();
-				loader.load( "models/earth.glb", function ( gltf ) {
+				loader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/models/earth.glb", function ( gltf ) {
 					console.log(gltf);
 					createScene( gltf.scene.children[ 0 ].geometry, 120, material );
 				} );
 
-				var spriteMap = new THREE.TextureLoader().load( "textures/ec.png" );
+				var spriteMap = new THREE.TextureLoader().load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/ec.png" );
 				var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
 				var sprite = new THREE.Sprite( spriteMaterial );
 				var scl = Math.max(window.innerWidth, window.innerHeight);
@@ -210,7 +210,7 @@
 
 				scene.add( mesh );
 
-				var alphaMap = textureLoader.load( "textures/earth/clouds.jpg" );
+				var alphaMap = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/earth/clouds.jpg" );
 
 				var cloudMaterial = new THREE.MeshPhongMaterial({
 					specular: 0x000000,

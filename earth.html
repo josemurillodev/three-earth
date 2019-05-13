@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>M O O N | J M</title>
+		<title>E A R T H</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link href="https://fonts.googleapis.com/css?family=Montserrat:100" rel="stylesheet">
@@ -45,7 +45,7 @@
 	<body>
 
 		<div id="info">
-			MOON
+			EARTH
 		</div>
 
 		<script src="three.min.js"></script>
@@ -64,7 +64,7 @@
 
 			var camera, scene, renderer;
 
-			var mesh;
+			var mesh, clouds;
 
 			var textureLoader;
 
@@ -121,7 +121,7 @@
 				//cubemap
 				var format = '.jpg';
 
-				var path = "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-moon/textures/cube/stars/face-";
+				var path = "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/cube/stars/face-";
 				var urls = [
 					path + 'r' + format, path + 'l' + format,
 					path + 't' + format, path + 'd' + format,
@@ -135,8 +135,8 @@
 				//
 				textureLoader = new THREE.TextureLoader();
 
-				var bumpMap = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-moon/textures/moon/bump.jpg" );
-				var texture = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-moon/textures/moon/diffuse.jpg" );
+				var bumpMap = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/earth/bump.jpg" );
+				var texture = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/earth/diffuse.jpg" );
 
 				var material = new THREE.MeshPhongMaterial( {
 					color: 0xFFFFFF,
@@ -155,7 +155,7 @@
 				} );
 
 				loader = new THREE.GLTFLoader();
-				loader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-moon/models/moon.glb", function ( gltf ) {
+				loader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/models/earth.glb", function ( gltf ) {
 					console.log(gltf);
 					createScene( gltf.scene.children[ 0 ].geometry, 120, material );
 					// createScene( geometry, 100, material );
@@ -195,6 +195,20 @@
 
 				scene.add( mesh );
 
+				var alphaMap = textureLoader.load( "https://cdn.jsdelivr.net/gh/joseluismurillorios/three-earth/textures/earth/clouds.jpg" );
+
+				var cloudMaterial = new THREE.MeshPhongMaterial({
+					specular: 0x000000,
+					emissive: 0x010101,
+					opacity: 0.4,
+					alphaMap: alphaMap,
+					bumpMap: alphaMap,
+					bumpScale: 1,
+    			transparent: true
+				});
+				clouds = new THREE.Mesh( geometry, cloudMaterial );
+				clouds.scale.set( scale + 1, scale + 1, scale + 1 );
+				scene.add( clouds );
 			}
 
 			//
@@ -232,6 +246,7 @@
 
 				if ( mesh ) {
 					mesh.rotation.y += 0.0011;
+					clouds.rotation.y += 0.0013;
 				}
 
 				camera.position.x += ( mouseX - camera.position.x * 0.5 );
